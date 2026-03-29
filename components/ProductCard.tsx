@@ -1,4 +1,3 @@
-
 "use client";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +7,7 @@ interface ProductProps {
     id: number;
     name: string;
     price: number;
-    image: string;
+    image: string[];
     description: string;
   };
 }
@@ -20,7 +19,7 @@ export const ProductCard = ({ product }: ProductProps) => {
         {/* CONTENEDOR DE IMAGEN: Más limpio y alto */}
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-100">
           <Image
-            src={product.image}
+            src={product.image[0]}
             alt={product.name}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -43,14 +42,13 @@ export const ProductCard = ({ product }: ProductProps) => {
 
       {/* BOTÓN RÁPIDO (Opcional): Aparece solo al pasar el mouse */}
       <div className="absolute bottom-[85px] left-4 right-4 translate-y-10 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 z-10">
-        
         <button
-        onClick={(e)=>{
-          e.preventDefault();
-          alert(`Añadido: ${product.name}`);
-        }}
-        className="w-full bg-white/90 py-2 text-xs font-bold uppercase backdrop-blur-sm hover:bg-black hover:text-white transition-colors">
-          
+          onClick={(e) => {
+            e.preventDefault();
+            alert(`Añadido: ${product.name}`);
+          }}
+          className="w-full bg-white/90 py-2 text-xs font-bold uppercase backdrop-blur-sm hover:bg-black hover:text-white transition-colors"
+        >
           Añadir al carrito
         </button>
       </div>
