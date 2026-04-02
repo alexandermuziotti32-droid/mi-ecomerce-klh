@@ -14,9 +14,9 @@ interface ProductProps {
     id: number;
     name: string;
     price: number;
-    image: string[];
+    images: string[]; // 1. CORRECCIÓN: 'images' en plural como en Supabase
     description: string;
-    colors?: (string | ColorOption)[]; // Soporta ambos formatos por ahora
+    colors?: (string | ColorOption)[];
   };
 }
 
@@ -28,7 +28,8 @@ export const ProductCard = ({ product }: ProductProps) => {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image[0],
+      // 2. CORRECCIÓN: Usamos images[0]
+      image: product.images ? product.images[0] : "/placeholder.jpg",
       color: colorName,
       quantity: 1,
     });
@@ -39,7 +40,8 @@ export const ProductCard = ({ product }: ProductProps) => {
       <Link href={`/product/${product.id}`} className="block">
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-100">
           <Image
-            src={product.image[0]}
+            // 3. CORRECCIÓN: Usamos images[0] con una validación por si acaso
+            src={product.images ? product.images[0] : "/placeholder.jpg"}
             alt={product.name}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -60,7 +62,6 @@ export const ProductCard = ({ product }: ProductProps) => {
           </p>
           <div className="flex justify-center gap-3">
             {product.colors?.map((color, index) => {
-              // Normalizamos el color (si es string lo usamos como hex y nombre)
               const colorHex = typeof color === 'string' ? color : color.hex;
               const colorName = typeof color === 'string' ? color : color.name;
 
@@ -74,10 +75,8 @@ export const ProductCard = ({ product }: ProductProps) => {
                     style={{ backgroundColor: colorHex }}
                     className="w-6 h-6 rounded-full border border-white/40 hover:scale-125 transition-all shadow-sm"
                   />
-                  {/* TOOLTIP CON EL NOMBRE DEL COLOR */}
                   <span className="absolute -top-9 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded-md opacity-0 group-hover/color:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-30 shadow-lg font-medium">
                     {colorName}
-                    {/* Triangulito del tooltip */}
                     <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black"></span>
                   </span>
                 </div>

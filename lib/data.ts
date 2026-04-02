@@ -42,9 +42,9 @@ export const Products = [
     price: 19.99,
     image: ["/images/3104.webp"],
     colors : [
-      {name :"Verde", hex: "#808000"},
-      {name :"Turquesa", hex: "#008080"},
-      {name :"Marrón", hex: "#800000"}
+      {"name" :"Verde", "hex": "#808000"},
+      {"name" :"Turquesa", "hex": "#008080"},
+      {"name" :"Marrón", "hex": "#800000"}
     ]
   },
   {
@@ -54,9 +54,9 @@ export const Products = [
     price: 19.99,
     image: ["/images/3105.webp"],
     colors : [
-      {name :"Naranja", hex: "#FF4500"},
-      {name :"Verde", hex: "#2E8B57"},
-      {name :"Azul", hex: "#1E90FF"}
+      {"name" :"Naranja", "hex": "#FF4500"},
+      {"name" :"Verde", "hex": "#2E8B57"},
+      {"name" :"Azul", "hex": "#1E90FF"}
     ]
   },
   {
@@ -66,9 +66,11 @@ export const Products = [
     price: 19.99,
     image: ["/images/3106.webp"],
     colors : [
-      {name :"Café", hex: "#A52A2A"},
-      {name :"Azul", hex: "#5F9EA0"},
-      {name :"Ocre", hex: "#D2691E"}
+      {"name" :"Café", "hex": "#A52A2A"},
+      {"name" :"Azul", "hex": "#5F9EA0"},
+      {"name" :"Ocre", "hex": "#D2691E"}
     ]
   },
 ];
+
+

@@ -9,12 +9,13 @@ interface CartItem {
   quantity: number;
   image: string;
   color: string;
+  size?: string; // Opcional: Si no existe, se asume que es una "Curva/Pack"
 }
 
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: number, color: string) => void;
+  removeFromCart: (id: number, color: string, size?: string) => void;
   clearCart: () => void;
   totalItems: number;
 }
@@ -24,7 +25,6 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  // 1. CARGAR DATOS: Al abrir la web por primera vez
   useEffect(() => {
     const savedCart = localStorage.getItem('cart-klh');
     if (savedCart) {
@@ -32,25 +32,28 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         const parsedCart = JSON.parse(savedCart) as CartItem[];
         setCart(parsedCart);
       } catch (error) {
-        console.error("Error al cargar el carrito de localStorage", error);
+        console.error("Error al cargar el carrito:", error);
       }
     }
   }, []);
 
-  // 2. GUARDAR DATOS: Cada vez que el 'cart' cambie
   useEffect(() => {
     localStorage.setItem('cart-klh', JSON.stringify(cart));
   }, [cart]);
 
   const addToCart = (newItem: CartItem) => {
     setCart((prevCart) => {
+      // Buscamos si ya existe el producto con MISMO ID, COLOR Y TALLE
       const existingItem = prevCart.find(
-        (item) => item.id === newItem.id && item.color === newItem.color
+        (item) => 
+          item.id === newItem.id && 
+          item.color === newItem.color && 
+          item.size === newItem.size
       );
 
       if (existingItem) {
         return prevCart.map((item) =>
-          item.id === newItem.id && item.color === newItem.color
+          (item.id === newItem.id && item.color === newItem.color && item.size === newItem.size)
             ? { ...item, quantity: item.quantity + newItem.quantity }
             : item
         );
@@ -59,8 +62,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  const removeFromCart = (id: number, color: string) => {
-    setCart((prev) => prev.filter((item) => !(item.id === id && item.color === color)));
+  const removeFromCart = (id: number, color: string, size?: string) => {
+    setCart((prev) => prev.filter((item) => 
+      !(item.id === id && item.color === color && item.size === size)
+    ));
   };
 
   const clearCart = () => setCart([]);
