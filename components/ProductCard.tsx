@@ -1,6 +1,13 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import { useCart } from "@/context/CartContext";
+
+interface ColorOption {
+  name: string;
+  hex: string;
+}
 
 interface ProductProps {
   product: {
@@ -9,14 +16,27 @@ interface ProductProps {
     price: number;
     image: string[];
     description: string;
+    colors?: (string | ColorOption)[]; // Soporta ambos formatos por ahora
   };
 }
 
 export const ProductCard = ({ product }: ProductProps) => {
+  const { addToCart } = useCart();
+
+  const handleAddCurve = (colorName: string) => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image[0],
+      color: colorName,
+      quantity: 1,
+    });
+  };
+
   return (
     <div className="group cursor-pointer flex flex-col gap-3 relative">
       <Link href={`/product/${product.id}`} className="block">
-        {/* CONTENEDOR DE IMAGEN: Más limpio y alto */}
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-100">
           <Image
             src={product.image[0]}
@@ -26,31 +46,45 @@ export const ProductCard = ({ product }: ProductProps) => {
           />
         </div>
 
-        {/* DETALLES DEL PRODUCTO: Alineados a la izquierda */}
-        <div className="flex flex-col gap-1 px-1">
-          <h3 className="text-sm font-medium uppercase tracking-tight text-gray-900">
-            {product.name}
-          </h3>
-          <p className="text-xs text-gray-500 line-clamp-1">
-            {product.description}
-          </p>
-          <span className="text-sm font-bold mt-1">
-            ${product.price.toFixed(2)}
-          </span>
+        <div className="flex flex-col gap-1 px-1 mt-2">
+          <h3 className="text-sm font-medium uppercase tracking-tight text-gray-900">{product.name}</h3>
+          <span className="text-sm font-bold">${product.price.toFixed(2)}</span>
         </div>
       </Link>
 
-      {/* BOTÓN RÁPIDO (Opcional): Aparece solo al pasar el mouse */}
-      <div className="absolute bottom-[85px] left-4 right-4 translate-y-10 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 z-10">
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            alert(`Añadido: ${product.name}`);
-          }}
-          className="w-full bg-white/90 py-2 text-xs font-bold uppercase backdrop-blur-sm hover:bg-black hover:text-white transition-colors"
-        >
-          Añadir al carrito
-        </button>
+      {/* INTERFAZ DE SELECCIÓN DE COLOR CON BLUR */}
+      <div className="absolute bottom-[85px] left-0 right-0 px-4 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 z-20">
+        <div className="bg-white/40 backdrop-blur-md p-3 shadow-xl border border-white/20 rounded-xl">
+          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-center mb-3 text-black/60">
+            Añadir Curva
+          </p>
+          <div className="flex justify-center gap-3">
+            {product.colors?.map((color, index) => {
+              // Normalizamos el color (si es string lo usamos como hex y nombre)
+              const colorHex = typeof color === 'string' ? color : color.hex;
+              const colorName = typeof color === 'string' ? color : color.name;
+
+              return (
+                <div key={index} className="relative group/color">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleAddCurve(colorName);
+                    }}
+                    style={{ backgroundColor: colorHex }}
+                    className="w-6 h-6 rounded-full border border-white/40 hover:scale-125 transition-all shadow-sm"
+                  />
+                  {/* TOOLTIP CON EL NOMBRE DEL COLOR */}
+                  <span className="absolute -top-9 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded-md opacity-0 group-hover/color:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-30 shadow-lg font-medium">
+                    {colorName}
+                    {/* Triangulito del tooltip */}
+                    <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black"></span>
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
