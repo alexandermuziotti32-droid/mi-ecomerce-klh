@@ -1,10 +1,11 @@
 "use client";
 import { useState } from "react";
 // importar la libreria de los iconos
-import { ShoppingCart, User, Search } from "lucide-react";
+import { ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { CartDrawer } from "./CartDrawer";
+import { SearchBar } from "./SearchBar";
 
 export const Navbar = () => {
     const { totalItems } = useCart();
@@ -31,7 +32,7 @@ export const Navbar = () => {
 
           {/* SECCIÓN 3: Iconos de Acción (Derecha) - UNIFICADO */}
           <div className="flex items-center space-x-5">
-            <Search className="w-5 h-5 cursor-pointer hover:text-gray-500" />
+            <SearchBar/>
             <User className="w-5 h-5 cursor-pointer hover:text-gray-500" />
             
             {/* Contenedor del Carrito con clic para abrir */}

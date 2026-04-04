@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const Hero = () => {
   return (
-    <section className="flex flex-col md:flex-row h-[80vh] w-full bg-gray-50">
+    <section className="flex flex-col md:flex-row h-[70vh] w-full bg-gray-50">
       {/* LADO IZQUIERDO: Texto y Botón */}
       <div className="flex-1 flex flex-col justify-center items-start px-12 lg:px-24 space-y-6">
         <span className="text-sm uppercase tracking-widest text-gray-500">
