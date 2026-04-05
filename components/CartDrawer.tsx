@@ -2,6 +2,7 @@
 import { useCart } from "@/context/CartContext";
 import { X, ShoppingBag, Trash2, Plus, Minus } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const { cart, removeFromCart, addToCart, totalItems } = useCart();
@@ -109,19 +110,32 @@ export const CartDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =
         </div>
 
         {/* PIE DE PÁGINA: SUBTOTAL Y CHECKOUT */}
-        <div className="absolute bottom-0 left-0 w-full p-6 bg-white/95 border-t border-gray-100">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-gray-400 uppercase text-[10px] tracking-[0.2em] font-bold">Subtotal</span>
-            <span className="text-xl font-bold">${subtotal.toLocaleString()}</span>
-          </div>
-          <button className="w-full bg-black text-white py-4 uppercase text-[10px] font-bold tracking-[0.3em] hover:bg-zinc-800 transition-all active:scale-[0.98]">
-            Finalizar Pedido
-          </button>
+        <div className="border-t p-6 space-y-4">
+  <div className="flex justify-between font-bold text-lg">
+    <span>Total</span>
+    <span>${subtotal.toLocaleString()}</span>
+  </div>
+
+  {/* BOTÓN DE REDIRECCIÓN */}
+  <Link 
+    href="/checkout" 
+    onClick={onClose} // Muy importante: cerrar el drawer al hacer clic
+    className="block w-full bg-black text-white text-center py-4 uppercase text-sm font-bold tracking-widest hover:bg-gray-800 transition-colors"
+  >
+    Finalizar Compra
+  </Link>
+  
+  <button 
+    onClick={onClose}
+    className="w-full text-center text-xs text-gray-500 uppercase tracking-widest underline"
+  >
+    Continuar comprando
+  </button>
+</div>
           <p className="text-[9px] text-center text-gray-400 mt-3 italic">
             Pedido mayorista sujeto a disponibilidad de stock.
           </p>
         </div>
-      </div>
     </>
   );
 };
