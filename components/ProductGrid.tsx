@@ -1,30 +1,29 @@
 "use client";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ProductCard } from "./ProductCard";
+import type { Product } from "@/types";
 
-// Definimos las animaciones para el contenedor (el Grid)
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1, // Hace que los productos aparezcan uno tras otro (efecto cascada)
+      staggerChildren: 0.1,
     },
   },
 };
 
-// Definimos la animación para cada tarjeta individual
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" }
+    transition: { duration: 0.5, ease: "easeOut" },
   },
-  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } }
+  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
 };
 
-export const ProductGrid = ({ products }: { products: any[] }) => {
+export const ProductGrid = ({ products }: { products: Product[] }) => {
   return (
     <motion.div
       variants={containerVariants}
@@ -34,11 +33,7 @@ export const ProductGrid = ({ products }: { products: any[] }) => {
     >
       <AnimatePresence mode="popLayout">
         {products.map((item) => (
-          <motion.div
-            key={item.id}
-            variants={itemVariants}
-            layout // Esta propiedad hace que los productos se reacomoden suavemente al filtrar
-          >
+          <motion.div key={item.id} variants={itemVariants} layout>
             <ProductCard product={item} />
           </motion.div>
         ))}
