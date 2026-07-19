@@ -28,14 +28,14 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/account");
+    router.push("/admin");
     router.refresh();
   };
 
   return (
     <div className="max-w-sm mx-auto py-24 px-6">
       <h1 className="text-2xl font-bold uppercase tracking-tighter mb-8 text-center">
-        Iniciar Sesión
+        Acceso Administrador
       </h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
@@ -70,12 +70,6 @@ export default function LoginPage() {
         >
           {isLoading ? "Ingresando..." : "Ingresar"}
         </button>
-        <p className="text-center text-xs text-gray-400">
-          ¿No tenés cuenta?{" "}
-          <a href="/register" className="underline text-black">
-            Crear una
-          </a>
-        </p>
       </form>
     </div>
   );

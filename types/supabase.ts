@@ -54,28 +54,31 @@ export interface Database {
       };
       orders: {
         Row: {
-          id: number;
+          id: string;
           customer_name: string;
           customer_email: string;
           total_amount: number;
           status: "pendiente" | "enviado" | "entregado" | "cancelado";
           created_at: string;
+          user_id: string | null;
         };
         Insert: {
-          id?: number;
+          id?: string;
           customer_name: string;
           customer_email: string;
           total_amount: number;
           status?: "pendiente" | "enviado" | "entregado" | "cancelado";
           created_at?: string;
+          user_id?: string | null;
         };
         Update: {
-          id?: number;
+          id?: string;
           customer_name?: string;
           customer_email?: string;
           total_amount?: number;
           status?: "pendiente" | "enviado" | "entregado" | "cancelado";
           created_at?: string;
+          user_id?: string | null;
         };
       };
       order_items: {
@@ -109,6 +112,17 @@ export interface Database {
           size?: string;
           color?: string;
         };
+      };
+    };
+    Functions: {
+      create_order: {
+        Args: {
+          customer_name: string;
+          customer_email: string;
+          items: Json;
+          p_user_id?: string | null;
+        };
+        Returns: string;
       };
     };
   };

@@ -55,8 +55,8 @@ export default function CheckoutPage() {
       router.push("/");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Error desconocido";
-      console.error("Error:", message);
-      alert("Hubo un error al procesar tu pedido.");
+      console.warn("Error:", message);
+      alert(message);
     } finally {
       setIsProcessing(false);
     }

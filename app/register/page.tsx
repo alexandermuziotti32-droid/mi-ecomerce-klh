@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,15 +16,15 @@ export default function LoginPage() {
     setIsLoading(true);
 
     const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
     });
 
     setIsLoading(false);
 
-    if (signInError) {
-      setError("Credenciales incorrectas");
+    if (signUpError) {
+      setError(signUpError.message);
       return;
     }
 
@@ -35,7 +35,7 @@ export default function LoginPage() {
   return (
     <div className="max-w-sm mx-auto py-24 px-6">
       <h1 className="text-2xl font-bold uppercase tracking-tighter mb-8 text-center">
-        Iniciar Sesión
+        Crear Cuenta
       </h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
@@ -57,6 +57,7 @@ export default function LoginPage() {
           <input
             required
             type="password"
+            minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full border-b border-gray-200 py-3 outline-none focus:border-black"
@@ -68,12 +69,12 @@ export default function LoginPage() {
           disabled={isLoading}
           className="w-full bg-black text-white py-4 uppercase text-sm font-bold tracking-widest hover:bg-zinc-800 transition-all disabled:opacity-50"
         >
-          {isLoading ? "Ingresando..." : "Ingresar"}
+          {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
         </button>
         <p className="text-center text-xs text-gray-400">
-          ¿No tenés cuenta?{" "}
-          <a href="/register" className="underline text-black">
-            Crear una
+          ¿Ya tenés cuenta?{" "}
+          <a href="/login" className="underline text-black">
+            Iniciar sesión
           </a>
         </p>
       </form>

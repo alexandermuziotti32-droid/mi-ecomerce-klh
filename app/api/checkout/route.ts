@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { createClient } from "@/lib/supabase/server";
 
 interface CheckoutItem {
   id: number;
@@ -26,68 +27,31 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "El carrito está vacío" }, { status: 400 });
   }
 
-  // 1. Traer los precios REALES desde la base — nunca confiar en el cliente
-  const ids = [...new Set(items.map((i) => i.id))];
-  const { data: products, error: productsError } = await supabaseAdmin
-    .from("products")
-    .select("id, name, price")
-    .in("id", ids);
+  // Si hay sesión activa, el pedido queda vinculado a la cuenta.
+  // Si no, sigue funcionando como compra de invitado (user_id null).
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (productsError || !products) {
-    return NextResponse.json({ error: "Error al validar productos" }, { status: 500 });
-  }
+  const rpcItems = items.map((item) => ({
+    product_id: item.id,
+    quantity: item.quantity,
+    color: item.color,
+    size: item.size ?? null,
+  }));
 
-  const priceMap = new Map(products.map((p) => [p.id, p]));
-
-  // 2. Recalcular el total en el servidor
-  let totalAmount = 0;
-  const orderItemsPayload = items.map((item) => {
-    const product = priceMap.get(item.id);
-    if (!product) throw new Error(`Producto ${item.id} no encontrado`);
-
-    const realPrice = product.price ?? 0;
-    totalAmount += realPrice * item.quantity;
-
-    return {
-      product_id: item.id,
-      product_name: product.name,
-      price_at_purchase: realPrice,
-      quantity: item.quantity,
-      size: item.size || "Único",
-      color: item.color,
-    };
+  const { data: orderId, error } = await supabaseAdmin.rpc("create_order", {
+    customer_name,
+    customer_email,
+    items: rpcItems,
+    p_user_id: user?.id ?? null,
   });
 
-  // 3. Crear la orden
-  const { data: orderData, error: orderError } = await supabaseAdmin
-    .from("orders")
-    .insert([
-      {
-        customer_name,
-        customer_email,
-        total_amount: totalAmount,
-        status: "pendiente",
-      },
-    ])
-    .select()
-    .single();
-
-  if (orderError || !orderData) {
-    return NextResponse.json({ error: "Error al crear el pedido" }, { status: 500 });
+  if (error) {
+    console.error("Error en create_order:", error);
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  // 4. Insertar los items del pedido
-  const { error: itemsError } = await supabaseAdmin
-    .from("order_items")
-    .insert(orderItemsPayload.map((item) => ({ ...item, order_id: orderData.id })));
-
-  if (itemsError) {
-    console.error("Error al insertar items:", itemsError);
-    return NextResponse.json(
-      { error: "Error al guardar los items del pedido" },
-      { status: 500 }
-    );
-  }
-
-  return NextResponse.json({ orderId: orderData.id }, { status: 200 });
+  return NextResponse.json({ orderId }, { status: 200 });
 }

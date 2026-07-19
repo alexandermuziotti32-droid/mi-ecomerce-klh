@@ -32,7 +32,7 @@ export const AdminDashboard = () => {
     setLoading(false);
   };
 
-  const updateStatus = async (orderId: number, newStatus: Order["status"]) => {
+  const updateStatus = async (orderId: string, newStatus: Order["status"]) => {
     const { error } = await supabase
       .from("orders")
       .update({ status: newStatus })
