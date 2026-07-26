@@ -124,6 +124,12 @@ export interface Database {
         };
         Returns: string;
       };
+      cancel_order: {
+        Args: {
+          p_order_id: string;
+        };
+        Returns: void;
+      };
     };
   };
 }

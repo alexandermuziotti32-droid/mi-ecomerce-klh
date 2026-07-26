@@ -1,9 +1,10 @@
 "use client";
-
+import { updateOrderStatus } from "@/app/admin/orders/actions";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Package } from "lucide-react";
+import { AdminNav } from "@/components/admin/AdminNav";
 import type { Order } from "@/types";
 
 export const AdminDashboard = () => {
@@ -32,15 +33,16 @@ export const AdminDashboard = () => {
     setLoading(false);
   };
 
+  // Ahora:
   const updateStatus = async (orderId: string, newStatus: Order["status"]) => {
-    const { error } = await supabase
-      .from("orders")
-      .update({ status: newStatus })
-      .eq("id", orderId);
-
-    if (!error) fetchOrders();
+    try {
+      await updateOrderStatus(orderId, newStatus);
+      fetchOrders();
+    } catch (error) {
+      console.error("Error al actualizar estado:", error);
+      alert("No se pudo actualizar el estado del pedido.");
+    }
   };
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/login");
@@ -57,10 +59,15 @@ export const AdminDashboard = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-8 lg:py-16">
+      <AdminNav active="orders" />
       <div className="flex justify-between items-end mb-12">
         <div>
-          <h1 className="text-4xl font-bold uppercase tracking-tighter">Panel de Pedidos</h1>
-          <p className="text-gray-400 text-sm mt-2">Gestiona las ventas y estados de KLH</p>
+          <h1 className="text-4xl font-bold uppercase tracking-tighter">
+            Panel de Pedidos
+          </h1>
+          <p className="text-gray-400 text-sm mt-2">
+            Gestiona las ventas y estados de KLH
+          </p>
         </div>
         <div className="flex items-center gap-4">
           <div className="bg-black text-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest">
@@ -87,8 +94,12 @@ export const AdminDashboard = () => {
                   <Package className="w-5 h-5 text-gray-400" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm uppercase">{order.customer_name}</h3>
-                  <p className="text-xs text-gray-400">{order.customer_email}</p>
+                  <h3 className="font-bold text-sm uppercase">
+                    {order.customer_name}
+                  </h3>
+                  <p className="text-xs text-gray-400">
+                    {order.customer_email}
+                  </p>
                 </div>
               </div>
 
@@ -97,7 +108,9 @@ export const AdminDashboard = () => {
                   <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">
                     Total
                   </p>
-                  <p className="font-black text-lg">${order.total_amount.toLocaleString()}</p>
+                  <p className="font-black text-lg">
+                    ${order.total_amount.toLocaleString()}
+                  </p>
                 </div>
 
                 <select
@@ -143,7 +156,10 @@ export const AdminDashboard = () => {
                       </td>
                       <td className="py-4 text-gray-500">x{item.quantity}</td>
                       <td className="py-4 text-right font-bold">
-                        ${(item.price_at_purchase * item.quantity).toLocaleString()}
+                        $
+                        {(
+                          item.price_at_purchase * item.quantity
+                        ).toLocaleString()}
                       </td>
                     </tr>
                   ))}

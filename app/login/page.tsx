@@ -16,19 +16,25 @@ export default function LoginPage() {
     setIsLoading(true);
 
     const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    setIsLoading(false);
-
-    if (signInError) {
+    if (signInError || !data.user) {
+      setIsLoading(false);
       setError("Credenciales incorrectas");
       return;
     }
 
-    router.push("/account");
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+
+    setIsLoading(false);
+    router.push(profile?.role === "admin" ? "/admin" : "/account");
     router.refresh();
   };
 

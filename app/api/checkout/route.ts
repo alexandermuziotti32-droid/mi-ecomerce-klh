@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { createClient } from "@/lib/supabase/server";
@@ -53,5 +54,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
+  revalidatePath("/");
+  items.forEach((item) => revalidatePath(`/product/${item.id}`));
   return NextResponse.json({ orderId }, { status: 200 });
 }
