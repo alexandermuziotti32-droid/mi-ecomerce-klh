@@ -14,9 +14,10 @@ export const ProductForm = ({ product }: { product?: Product }) => {
   const [name, setName] = useState(product?.name ?? "");
   const [price, setPrice] = useState(product?.price?.toString() ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
+  const [category, setCategory] = useState(product?.category ?? "");
   const [images, setImages] = useState<string[]>(product?.images ?? []);
   const [colors, setColors] = useState<ColorVariant[]>(
-    (product?.colors as ColorVariant[] | null) ?? []
+    (product?.colors as ColorVariant[] | null) ?? [],
   );
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -32,7 +33,9 @@ export const ProductForm = ({ product }: { product?: Product }) => {
     const supabase = createClient();
     const fileName = `${Date.now()}-${file.name}`;
 
-    const { error: uploadError } = await supabase.storage.from("products").upload(fileName, file);
+    const { error: uploadError } = await supabase.storage
+      .from("products")
+      .upload(fileName, file);
 
     if (uploadError) {
       setError(`Error al subir imagen: ${uploadError.message}`);
@@ -40,7 +43,9 @@ export const ProductForm = ({ product }: { product?: Product }) => {
       return;
     }
 
-    const { data: publicUrlData } = supabase.storage.from("products").getPublicUrl(fileName);
+    const { data: publicUrlData } = supabase.storage
+      .from("products")
+      .getPublicUrl(fileName);
 
     setImages((prev) => [...prev, publicUrlData.publicUrl]);
     setIsUploading(false);
@@ -52,28 +57,43 @@ export const ProductForm = ({ product }: { product?: Product }) => {
   };
 
   const addColor = () => {
-    setColors((prev) => [...prev, { name: "", hex: "#000000", sizes: [{ size: "S", stock: 0 }] }]);
+    setColors((prev) => [
+      ...prev,
+      { name: "", hex: "#000000", sizes: [{ size: "S", stock: 0 }] },
+    ]);
   };
 
   const removeColor = (index: number) => {
     setColors((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const updateColorField = (index: number, field: "name" | "hex", value: string) => {
-    setColors((prev) => prev.map((c, i) => (i === index ? { ...c, [field]: value } : c)));
+  const updateColorField = (
+    index: number,
+    field: "name" | "hex",
+    value: string,
+  ) => {
+    setColors((prev) =>
+      prev.map((c, i) => (i === index ? { ...c, [field]: value } : c)),
+    );
   };
 
   const addSize = (colorIndex: number) => {
     setColors((prev) =>
-      prev.map((c, i) => (i === colorIndex ? { ...c, sizes: [...c.sizes, { size: "", stock: 0 }] } : c))
+      prev.map((c, i) =>
+        i === colorIndex
+          ? { ...c, sizes: [...c.sizes, { size: "", stock: 0 }] }
+          : c,
+      ),
     );
   };
 
   const removeSize = (colorIndex: number, sizeIndex: number) => {
     setColors((prev) =>
       prev.map((c, i) =>
-        i === colorIndex ? { ...c, sizes: c.sizes.filter((_, si) => si !== sizeIndex) } : c
-      )
+        i === colorIndex
+          ? { ...c, sizes: c.sizes.filter((_, si) => si !== sizeIndex) }
+          : c,
+      ),
     );
   };
 
@@ -81,7 +101,7 @@ export const ProductForm = ({ product }: { product?: Product }) => {
     colorIndex: number,
     sizeIndex: number,
     field: "size" | "stock",
-    value: string
+    value: string,
   ) => {
     setColors((prev) =>
       prev.map((c, i) =>
@@ -89,11 +109,13 @@ export const ProductForm = ({ product }: { product?: Product }) => {
           ? {
               ...c,
               sizes: c.sizes.map((s, si) =>
-                si === sizeIndex ? { ...s, [field]: field === "stock" ? Number(value) : value } : s
+                si === sizeIndex
+                  ? { ...s, [field]: field === "stock" ? Number(value) : value }
+                  : s,
               ),
             }
-          : c
-      )
+          : c,
+      ),
     );
   };
 
@@ -113,6 +135,7 @@ export const ProductForm = ({ product }: { product?: Product }) => {
       name: name.trim(),
       price: price ? Number(price) : 0,
       description: description.trim(),
+      category: category || null,
       images,
       colors: colors as unknown as Json,
     };
@@ -126,7 +149,9 @@ export const ProductForm = ({ product }: { product?: Product }) => {
       router.push("/admin/products");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al guardar el producto");
+      setError(
+        err instanceof Error ? err.message : "Error al guardar el producto",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -136,7 +161,14 @@ export const ProductForm = ({ product }: { product?: Product }) => {
     <form onSubmit={handleSubmit} className="space-y-10">
       {error && <p className="text-red-600 text-sm">{error}</p>}
 
-      {!isEditing && (
+      {isEditing ? (
+        <div>
+          <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+            Número de artículo
+          </label>
+          <p className="text-lg font-bold py-3">#{product?.id}</p>
+        </div>
+      ) : (
         <div>
           <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
             Número de artículo (opcional)
@@ -150,8 +182,7 @@ export const ProductForm = ({ product }: { product?: Product }) => {
           />
         </div>
       )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
           <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
             Nombre
@@ -175,6 +206,21 @@ export const ProductForm = ({ product }: { product?: Product }) => {
             className="w-full border-b border-gray-200 py-3 outline-none focus:border-black"
           />
         </div>
+        <div>
+          <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+            Categoría
+          </label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full border-b border-gray-200 py-3 outline-none focus:border-black bg-white"
+          >
+            <option value="">Sin categoría</option>
+            <option value="hombres">Hombres</option>
+            <option value="mujeres">Mujeres</option>
+            <option value="accesorios">Accesorios</option>
+          </select>
+        </div>
       </div>
 
       <div>
@@ -195,7 +241,10 @@ export const ProductForm = ({ product }: { product?: Product }) => {
         </label>
         <div className="flex flex-wrap gap-4 mb-4">
           {images.map((img, index) => (
-            <div key={index} className="relative w-24 h-32 bg-gray-100 rounded overflow-hidden group">
+            <div
+              key={index}
+              className="relative w-24 h-32 bg-gray-100 rounded overflow-hidden group"
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={img} alt="" className="w-full h-full object-cover" />
               <button
@@ -208,8 +257,15 @@ export const ProductForm = ({ product }: { product?: Product }) => {
             </div>
           ))}
         </div>
-        <input type="file" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
-        {isUploading && <p className="text-xs text-gray-400 mt-2">Subiendo imagen...</p>}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          disabled={isUploading}
+        />
+        {isUploading && (
+          <p className="text-xs text-gray-400 mt-2">Subiendo imagen...</p>
+        )}
       </div>
 
       <div>
@@ -217,14 +273,21 @@ export const ProductForm = ({ product }: { product?: Product }) => {
           <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400">
             Colores y Talles
           </label>
-          <button type="button" onClick={addColor} className="text-[10px] font-bold uppercase tracking-widest underline">
+          <button
+            type="button"
+            onClick={addColor}
+            className="text-[10px] font-bold uppercase tracking-widest underline"
+          >
             + Agregar color
           </button>
         </div>
 
         <div className="space-y-6">
           {colors.map((color, colorIndex) => (
-            <div key={colorIndex} className="border border-gray-200 rounded-lg p-4 space-y-4">
+            <div
+              key={colorIndex}
+              className="border border-gray-200 rounded-lg p-4 space-y-4"
+            >
               <div className="flex gap-4 items-end">
                 <div className="flex-1">
                   <label className="block text-[9px] uppercase font-bold text-gray-400 mb-1">
@@ -232,16 +295,22 @@ export const ProductForm = ({ product }: { product?: Product }) => {
                   </label>
                   <input
                     value={color.name}
-                    onChange={(e) => updateColorField(colorIndex, "name", e.target.value)}
+                    onChange={(e) =>
+                      updateColorField(colorIndex, "name", e.target.value)
+                    }
                     className="w-full border-b border-gray-200 py-2 outline-none focus:border-black"
                   />
                 </div>
                 <div>
-                  <label className="block text-[9px] uppercase font-bold text-gray-400 mb-1">Color</label>
+                  <label className="block text-[9px] uppercase font-bold text-gray-400 mb-1">
+                    Color
+                  </label>
                   <input
                     type="color"
                     value={color.hex}
-                    onChange={(e) => updateColorField(colorIndex, "hex", e.target.value)}
+                    onChange={(e) =>
+                      updateColorField(colorIndex, "hex", e.target.value)
+                    }
                     className="w-12 h-9 border border-gray-200 rounded cursor-pointer"
                   />
                 </div>
@@ -260,14 +329,28 @@ export const ProductForm = ({ product }: { product?: Product }) => {
                     <input
                       placeholder="Talle"
                       value={size.size}
-                      onChange={(e) => updateSizeField(colorIndex, sizeIndex, "size", e.target.value)}
+                      onChange={(e) =>
+                        updateSizeField(
+                          colorIndex,
+                          sizeIndex,
+                          "size",
+                          e.target.value,
+                        )
+                      }
                       className="w-20 border-b border-gray-200 py-1 outline-none focus:border-black text-sm"
                     />
                     <input
                       type="number"
                       placeholder="Stock"
                       value={size.stock}
-                      onChange={(e) => updateSizeField(colorIndex, sizeIndex, "stock", e.target.value)}
+                      onChange={(e) =>
+                        updateSizeField(
+                          colorIndex,
+                          sizeIndex,
+                          "stock",
+                          e.target.value,
+                        )
+                      }
                       className="w-24 border-b border-gray-200 py-1 outline-none focus:border-black text-sm"
                     />
                     <button
@@ -297,7 +380,11 @@ export const ProductForm = ({ product }: { product?: Product }) => {
         disabled={isSaving || isUploading}
         className="w-full bg-black text-white py-4 uppercase text-sm font-bold tracking-widest hover:bg-zinc-800 transition-all disabled:opacity-50"
       >
-        {isSaving ? "Guardando..." : isEditing ? "Guardar Cambios" : "Crear Producto"}
+        {isSaving
+          ? "Guardando..."
+          : isEditing
+            ? "Guardar Cambios"
+            : "Crear Producto"}
       </button>
     </form>
   );

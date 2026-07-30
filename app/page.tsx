@@ -10,17 +10,13 @@ export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
   const searchTerm = params.search;
 
-  let query = supabase
-    .from("products")
-    .select("*")
-    .order("id", { ascending: false }) // no hay created_at en tu schema — ordenamos por id
-    .range(0, 23);
-
-  if (searchTerm) {
-    query = query.ilike("name", `%${searchTerm}%`);
-  }
-
-  const { data: products, error } = await query;
+  const { data: products, error } = searchTerm
+    ? await supabase.rpc("search_products", { search_query: searchTerm, result_limit: 24 })
+    : await supabase
+        .from("products")
+        .select("*")
+        .order("id", { ascending: false })
+        .range(0, 23);
 
   if (error) {
     console.error("Error cargando productos:", error);

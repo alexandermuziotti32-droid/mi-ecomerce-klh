@@ -17,6 +17,7 @@ export interface Database {
           description: string | null;
           images: string[] | null;
           colors: Json | null;
+          category: string | null;
         };
         Insert: {
           id?: number;
@@ -25,6 +26,7 @@ export interface Database {
           description?: string | null;
           images?: string[] | null;
           colors?: Json | null;
+          category?: string | null;
         };
         Update: {
           id?: number;
@@ -33,6 +35,7 @@ export interface Database {
           description?: string | null;
           images?: string[] | null;
           colors?: Json | null;
+          category?: string | null;
         };
       };
       profiles: {
@@ -129,6 +132,13 @@ export interface Database {
           p_order_id: string;
         };
         Returns: void;
+      };
+      search_products: {
+        Args: {
+          search_query: string;
+          result_limit?: number;
+        };
+        Returns: Database["public"]["Tables"]["products"]["Row"][];
       };
     };
   };

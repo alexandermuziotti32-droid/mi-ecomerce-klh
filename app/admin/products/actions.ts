@@ -29,6 +29,7 @@ export interface ProductInput {
   description: string;
   images: string[];
   colors: Json;
+  category?: string | null;
 }
 
 export async function createProduct(input: ProductInput) {

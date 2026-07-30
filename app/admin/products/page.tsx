@@ -44,6 +44,7 @@ export default async function AdminProductsPage() {
               )}
             </div>
             <div className="p-4 space-y-3">
+              <p className="text-[9px] text-gray-400 uppercase tracking-widest">Artículo #{product.id}</p>
               <h3 className="font-bold text-sm uppercase truncate">{product.name}</h3>
               <p className="text-gray-500 text-sm">${(product.price ?? 0).toFixed(2)}</p>
               <div className="flex gap-2">
